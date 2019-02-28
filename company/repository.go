@@ -27,6 +27,9 @@ type companyRepository struct {
 
 // NewRepository function returns a Repository impl
 func NewRepository(db *mgo.Database) Repository {
+	if db == nil {
+		return nil
+	}
 	db.C("Company").EnsureIndexKey("$text:name")
 	return companyRepository{db.C("Company")}
 }

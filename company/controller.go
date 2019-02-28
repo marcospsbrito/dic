@@ -14,8 +14,6 @@ import (
 type Controller interface {
 	Find(ctx *gin.Context)
 	LoadWebsites(ctx *gin.Context)
-	Add(ctx *gin.Context)
-	update(ctx *gin.Context)
 	InitDatabase(string)
 }
 
@@ -109,20 +107,6 @@ func (c companyController) LoadWebsites(ctx *gin.Context) {
 	}
 	ctx.Status(http.StatusOK)
 	return
-}
-
-func (c companyController) Add(ctx *gin.Context) {
-	r, _ := c.service.findAll()
-	if r == nil {
-		log.Error("fail")
-	}
-
-}
-func (c companyController) update(ctx *gin.Context) {
-	r, _ := c.service.findAll()
-	if r == nil {
-		log.Error("fail")
-	}
 }
 
 func (c companyController) InitDatabase(file string) {

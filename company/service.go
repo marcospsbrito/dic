@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"mime/multipart"
 	"os"
 	"strconv"
 	"strings"
@@ -20,7 +19,7 @@ type Service interface {
 	findByNameAndZipCode(string, string) (Company, error)
 	add(Company) error
 	InitDatabase(string) error
-	loadWebsites(multipart.File) error
+	loadWebsites(f io.Reader) error
 }
 
 type csvLineHandler func([]string)
@@ -53,7 +52,7 @@ func isSemicolonSeparated(t string) bool {
 	return result
 }
 
-func (s companyService) loadWebsites(f multipart.File) error {
+func (s companyService) loadWebsites(f io.Reader) error {
 	log.Debug("calls [loadWebsites] service")
 	return s.iterateFileAndCall(f, s.mergeDataByArray)
 }
@@ -61,10 +60,11 @@ func (s companyService) loadWebsites(f multipart.File) error {
 func (s companyService) InitDatabase(file string) error {
 	log.Debug("Start database setup")
 	f, err := os.Open(file)
-	check(err)
+	if err != nil {
+		return err
+	}
 	defer f.Close()
-	s.iterateFileAndCall(f, s.addByArray)
-	return nil
+	return s.iterateFileAndCall(f, s.addByArray)
 }
 
 func (s companyService) addByArray(fields []string) {
@@ -85,7 +85,7 @@ func (s companyService) mergeDataByArray(fields []string) {
 		return
 	}
 	log.Debug("Changed info")
-	log.Debug(fmt.Sprint(info.UpsertedId))
+	log.Debug(fmt.Sprint(info))
 
 	log.Error("No fields avaliable to update.")
 
@@ -141,6 +141,6 @@ func (s companyService) findByNameAndZipCode(name string, zip string) (Company, 
 
 func check(e error) {
 	if e != nil {
-		panic(e)
+		log.WithError(e).Error("failed with error - ")
 	}
 }
