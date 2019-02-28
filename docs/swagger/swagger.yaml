@@ -1,0 +1,125 @@
+basePath: '{{.BasePath}}'
+definitions:
+  company.Company:
+    properties:
+      Zipcode:
+        example: 123
+        type: integer
+      id:
+        example: "12345"
+        type: string
+      name:
+        example: Company Name
+        type: string
+      website:
+        example: "1"
+        type: string
+    type: object
+  httputil.HTTPError:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: status bad request
+        type: string
+    type: object
+host: '{{.Host}}'
+info:
+  contact: {}
+  description: |-
+    get company by name and zipcode
+    post website file to merge with companies
+  license: {}
+  title: '{{.Title}}'
+  version: '{{.Version}}'
+paths:
+  /companies:
+    get:
+      description: get company by name and zipcode
+      operationId: get-company-by-name-and-zipcode
+      parameters:
+      - description: Name
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: Zipcode
+        in: query
+        name: zipcode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/company.Company'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+      summary: Show a company
+  /companies/websites:
+    post:
+      consumes:
+      - multipart/form-data
+      description: post website file to merge with companies
+      operationId: post-load-websites
+      parameters:
+      - in: formData
+        name: CSV File
+        type: file
+        description: The file to upload.
+        required: true
+      produces:
+      - text/plain
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                orderId:
+                  type: integer
+                userId:
+                  type: integer
+                fileName:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+            type: object
+      summary: Load a csv file with websites to merge with companies data
+swagger: "2.0"
